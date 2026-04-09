@@ -1,0 +1,78 @@
+CREATE DATABASE bank_system;
+
+USE bank_system;
+
+CREATE TABLE customers(cus_id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100),
+email VARCHAR(100),
+city VARCHAR(50),
+acc_type VARCHAR(20),
+acc_bal DECIMAL(10,2)
+);
+desc customers;
+
+CREATE TABLE transactions(
+tra_id INT AUTO_INCREMENT PRIMARY KEY,
+cus_id INT,
+amount DECIMAL(10,2),
+tra_type VARCHAR(10),
+tra_mode VARCHAR(20),
+tra_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (cus_id) REFERENCES customers(cus_id)
+);
+
+INSERT INTO customers (name, email, city, acc_type, acc_bal) VALUES
+('Alice', 'alice@gmail.com', 'Hyderabad', 'Savings', 2500.00),
+('Bob', 'bob@gmail.com', 'Delhi', 'Current', 1200.00),
+('Charlie', 'charlie@gmail.com', 'Mumbai', 'Savings', 3000.00),
+('David', 'david@gmail.com', 'Chennai', 'Current', 1800.00),
+('Anjali', 'anjali@gmail.com', 'Bangalore', 'Savings', 4000.00),
+('Arjun', 'arjun@gmail.com', 'Hyderabad', 'Current', 2200.00),
+('Meena', 'meena@gmail.com', 'Delhi', 'Savings', 900.00),
+('Rahul', 'rahul@gmail.com', 'Mumbai', 'Current', 3500.00),
+('Sneha', 'sneha@gmail.com', 'Chennai', 'Savings', 2700.00),
+('Kiran', 'kiran@gmail.com', 'Bangalore', 'Current', 1500.00);
+
+INSERT INTO transactions (cus_id, amount, tra_type, tra_mode, tra_date) VALUES
+(1, 1000, 'credit', 'UPI', '2026-04-01 10:00:00'),
+(1, -200, 'debit', 'ATM', '2026-04-02 12:00:00'),
+(2, -500, 'debit', 'NEFT', '2026-04-03 09:30:00'),
+(3, 1500, 'credit', 'IMPS', '2026-04-04 11:15:00'),
+(4, -300, 'debit', 'UPI', '2026-04-05 14:20:00'),
+(5, 2000, 'credit', 'ATM', '2026-04-06 16:45:00'),
+(6, -700, 'debit', 'NEFT', '2026-04-07 18:00:00'),
+(7, 800, 'credit', 'IMPS', '2026-04-08 08:10:00'),
+(8, -400, 'debit', 'UPI', '2026-04-08 19:00:00'),
+(9, 1200, 'credit', 'ATM', '2026-04-09 07:50:00');
+
+select *from customers;
+
+select *from transactions;
+
+select cus_id,name from customers where acc_bal>1500;
+
+select *from transactions order by tra_date desc;
+
+select distinct tra_mode from transactions;
+
+select *from transactions order by amount desc limit 5;
+
+select *from customers where name like 'A%';
+
+select cus_id,sum(amount) from transactions group by cus_id;
+
+select cus_id,sum(amount) from transactions group by cus_id having sum(amount)>2000;
+
+select c.name,t.amount,t.tra_type from customers c join transactions t on c.cus_id=t.cus_id;
+
+select cus_id,amount,sum(amount) over(partition by cus_id order by tra_date) as running_total from transactions;
+
+SELECT name, acc_bal,
+DENSE_RANK() OVER(ORDER BY acc_bal DESC) AS rank_no
+FROM customers;
+
+SELECT cus_id
+FROM transactions
+GROUP BY cus_id
+HAVING AVG(amount) >
+      (SELECT AVG(amount) FROM transactions);
